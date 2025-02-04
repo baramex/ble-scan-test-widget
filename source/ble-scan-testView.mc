@@ -32,6 +32,9 @@ class ble_scan_testView extends WatchUi.View {
       :locY => 30,
       :font => Graphics.FONT_TINY,
       :color => Graphics.COLOR_WHITE,
+      :text => "placeholder",
+      :width => 200,
+      :height => 200,
     });
   }
 
@@ -63,8 +66,8 @@ class ble_scan_testView extends WatchUi.View {
       Graphics.TEXT_JUSTIFY_CENTER
     );
 
-    dataTextArea.width = dc.getWidth();
-    dataTextArea.height = dc.getHeight() - 30;
+    /*dataTextArea.width = dc.getWidth();
+    dataTextArea.height = dc.getHeight() - 30;*/
 
     if (currentMode == 0) {
       dataTextArea.setText(hexToString(sr.getRawData()));
@@ -115,6 +118,7 @@ class ble_scan_testView extends WatchUi.View {
   }
 
   function setScanResults(sr as BluetoothLowEnergy.Iterator) {
+    BluetoothLowEnergy.setScanState(BluetoothLowEnergy.SCAN_STATE_OFF);
     for (var next = sr.next(); next != null; next = sr.next()) {
       scanResults.put(scanResults.size(), next);
     }
