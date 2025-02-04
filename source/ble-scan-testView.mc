@@ -8,7 +8,8 @@ class ble_scan_testView extends WatchUi.View {
 
     var scanResults as Dictionary<Number, BluetoothLowEnergy.ScanResult>;
     var currentSelection = 0;
-    var currentMode = 0; // 0 = raw data, 1 = service data, 2 = manufacturerSpecificData
+    var currentMode = 0; // 0 = raw data, 1 = service data, 2 = manufacturerSpecificData, 3 = connect
+    var currentDevice;
 
     var dataTextArea;
 
@@ -39,7 +40,14 @@ class ble_scan_testView extends WatchUi.View {
         View.onUpdate(dc);
 
         var sr = scanResults.get(currentSelection);
-        dc.drawText(dc.getWidth() / 2, 10, Graphics.FONT_TINY, sr.getDeviceName(), Graphics.TEXT_JUSTIFY_CENTER);
+        var name;
+        if(currentMode == 3 && currentDevice != null) {
+            name = currentDevice.getName();
+        }
+        else {
+            name = sr.getDeviceName();
+        }
+        dc.drawText(dc.getWidth() / 2, 10, Graphics.FONT_TINY, name, Graphics.TEXT_JUSTIFY_CENTER);
 
         dataTextArea.setWidth(dc.getWidth());
         dataTextArea.height = dc.getHeight() - 30;
@@ -64,7 +72,9 @@ class ble_scan_testView extends WatchUi.View {
             }
             dataTextArea.setText(data);
         }
-
+        else if(currentMode == 3) {
+            dataTextArea.setText("Bonded: " + currentDevice.isBonded() + "\nConnected: " + currentDevice.isConnected());
+        }
 
         dataTextArea.draw(dc);
     }
@@ -73,6 +83,7 @@ class ble_scan_testView extends WatchUi.View {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() as Void {
+        BluetoothLowEnergy.setScanState(BluetoothLowEnergy.SCAN_STATE_OFF);
     }
 
     function setScanResults(sr as BluetoothLowEnergy.Iterator) {
@@ -92,7 +103,14 @@ class ble_scan_testView extends WatchUi.View {
     }
 
     function switchMode() {
-        currentMode = (currentMode + 1) % 3;
+        currentMode = (currentMode + 1) % 4;
+        if(currentMode == 3) {
+            currentDevice = BluetoothLowEnergy.pairDevice(scanResults.get(currentSelection));
+        }
+        else if(currentDevice != null) {
+            BluetoothLowEnergy.unpairDevice(currentDevice);
+            currentDevice = null;
+        }
         requestUpdate();
     }
 
@@ -131,13 +149,16 @@ class Delegate extends BehaviorDelegate {
 
     function onMenu() {
         _view.switchMode();
+        return true;
     }
 
-    function onNextMode() {
+    function onNextPage() {
         _view.nextScanResult();
+        return true;
     }
 
-    function onPreviousMode() {
+    function onPreviousPage() {
         _view.previousScanResult();
+        return true;
     }
 }
