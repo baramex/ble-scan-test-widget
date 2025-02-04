@@ -31,6 +31,7 @@ class ble_scan_testView extends WatchUi.View {
       :locX => WatchUi.LAYOUT_HALIGN_CENTER,
       :locY => 30,
       :font => Graphics.FONT_TINY,
+      :color => Graphics.COLOR_WHITE,
     });
   }
 
@@ -62,7 +63,7 @@ class ble_scan_testView extends WatchUi.View {
       Graphics.TEXT_JUSTIFY_CENTER
     );
 
-    /*dataTextArea.setWidth(dc.getWidth());
+    dataTextArea.width = dc.getWidth();
     dataTextArea.height = dc.getHeight() - 30;
 
     if (currentMode == 0) {
@@ -94,7 +95,7 @@ class ble_scan_testView extends WatchUi.View {
           "\n";
       }
       dataTextArea.setText(data);
-    } else if (currentMode == 3) {
+    } else if (currentMode == 3 && currentDevice != null) {
       dataTextArea.setText(
         "Bonded: " +
           currentDevice.isBonded() +
@@ -103,7 +104,7 @@ class ble_scan_testView extends WatchUi.View {
       );
     }
 
-    dataTextArea.draw(dc);*/
+    dataTextArea.draw(dc);
   }
 
   // Called when this View is removed from the screen. Save the
