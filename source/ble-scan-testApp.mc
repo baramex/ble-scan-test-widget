@@ -18,7 +18,8 @@ class ble_scan_testApp extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        return [ new ble_scan_testView() ];
+        var view = new ble_scan_testView();
+        return [ view, new Delegate(view) ];
     }
 
 }

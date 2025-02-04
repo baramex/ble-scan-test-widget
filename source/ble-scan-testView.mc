@@ -25,11 +25,12 @@ class ble_scan_testView extends WatchUi.View {
   // the state of this View and prepare it to be shown. This includes
   // loading resources into memory.
   function onShow() as Void {
-    BluetoothLowEnergy.setDelegate(new BleDelegate(self));
+    BluetoothLowEnergy.setDelegate(new BleDelegateCustom(self));
     BluetoothLowEnergy.setScanState(BluetoothLowEnergy.SCAN_STATE_SCANNING);
     dataTextArea = new WatchUi.TextArea({
       :locX => WatchUi.LAYOUT_HALIGN_CENTER,
       :locY => 30,
+      :font => Graphics.FONT_TINY,
     });
   }
 
@@ -43,11 +44,15 @@ class ble_scan_testView extends WatchUi.View {
       return;
     }
 
+    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
     var name;
     if (currentMode == 3 && currentDevice != null) {
       name = currentDevice.getName();
     } else {
       name = sr.getDeviceName();
+    }
+    if (name == null) {
+      name = "Unknown";
     }
     dc.drawText(
       dc.getWidth() / 2,
@@ -57,7 +62,7 @@ class ble_scan_testView extends WatchUi.View {
       Graphics.TEXT_JUSTIFY_CENTER
     );
 
-    dataTextArea.setWidth(dc.getWidth());
+    /*dataTextArea.setWidth(dc.getWidth());
     dataTextArea.height = dc.getHeight() - 30;
 
     if (currentMode == 0) {
@@ -98,7 +103,7 @@ class ble_scan_testView extends WatchUi.View {
       );
     }
 
-    dataTextArea.draw(dc);
+    dataTextArea.draw(dc);*/
   }
 
   // Called when this View is removed from the screen. Save the
@@ -112,6 +117,7 @@ class ble_scan_testView extends WatchUi.View {
     for (var next = sr.next(); next != null; next = sr.next()) {
       scanResults.put(scanResults.size(), next);
     }
+    requestUpdate();
   }
 
   function previousScanResult() {
@@ -148,7 +154,7 @@ function hexToString(hex as ByteArray) {
   return StringUtil.convertEncodedString(hex, options);
 }
 
-class BleDelegate extends BluetoothLowEnergy.BleDelegate {
+class BleDelegateCustom extends BluetoothLowEnergy.BleDelegate {
   private var _view;
 
   function initialize(view) {
@@ -161,7 +167,7 @@ class BleDelegate extends BluetoothLowEnergy.BleDelegate {
   }
 }
 
-class Delegate extends BehaviorDelegate {
+class Delegate extends WatchUi.BehaviorDelegate {
   private var _view;
 
   function initialize(view) {
