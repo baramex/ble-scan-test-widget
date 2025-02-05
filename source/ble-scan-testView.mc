@@ -56,6 +56,7 @@ class ble_scan_testView extends WatchUi.View {
     if (name == null) {
       name = "Unknown";
     }
+    name += " (" + (currentSelection + 1) + "/" + scanResults.size() + ")";
     dc.drawText(
       dc.getWidth() / 2,
       10,
@@ -78,7 +79,11 @@ class ble_scan_testView extends WatchUi.View {
         uuid = serviceUuids.next()
       ) {
         var serviceData = sr.getServiceData(uuid);
-        data += uuid.toString() + ":" + hexToString(serviceData) + "\n";
+        data += uuid.toString();
+        if (serviceData != null) {
+          data += ":" + hexToString(serviceData);
+        }
+        data += "\n";
       }
       dataTextArea.setText(data);
     } else if (currentMode == 2) {
@@ -124,7 +129,7 @@ class ble_scan_testView extends WatchUi.View {
           break;
         }
       }
-      if(hasDevice == true) {
+      if (hasDevice == true) {
         continue;
       }
       scanResults.put(scanResults.size(), next);
@@ -133,7 +138,10 @@ class ble_scan_testView extends WatchUi.View {
   }
 
   function previousScanResult() {
-    currentSelection = (currentSelection - 1) % scanResults.size();
+    currentSelection = currentSelection - 1;
+    if (currentSelection < 0) {
+      currentSelection = scanResults.size() - 1;
+    }
     currentMode = 0;
     System.println("Scan result " + currentSelection);
     requestUpdate();
