@@ -33,8 +33,6 @@ class ble_scan_testView extends WatchUi.View {
       :font => Graphics.FONT_TINY,
       :color => Graphics.COLOR_WHITE,
       :text => "placeholder",
-      :width => 200,
-      :height => 200,
     });
   }
 
@@ -66,8 +64,8 @@ class ble_scan_testView extends WatchUi.View {
       Graphics.TEXT_JUSTIFY_CENTER
     );
 
-    /*dataTextArea.width = dc.getWidth();
-    dataTextArea.height = dc.getHeight() - 30;*/
+    dataTextArea.width = dc.getWidth();
+    dataTextArea.height = dc.getHeight() - 30;
 
     if (currentMode == 0) {
       dataTextArea.setText(hexToString(sr.getRawData()));
@@ -118,8 +116,17 @@ class ble_scan_testView extends WatchUi.View {
   }
 
   function setScanResults(sr as BluetoothLowEnergy.Iterator) {
-    BluetoothLowEnergy.setScanState(BluetoothLowEnergy.SCAN_STATE_OFF);
     for (var next = sr.next(); next != null; next = sr.next()) {
+      var hasDevice = false;
+      for (var i = 0; i < scanResults.size(); i++) {
+        if (scanResults.get(i).isSameDevice(next)) {
+          hasDevice = true;
+          break;
+        }
+      }
+      if(hasDevice == true) {
+        continue;
+      }
       scanResults.put(scanResults.size(), next);
     }
     requestUpdate();
@@ -127,11 +134,15 @@ class ble_scan_testView extends WatchUi.View {
 
   function previousScanResult() {
     currentSelection = (currentSelection - 1) % scanResults.size();
+    currentMode = 0;
+    System.println("Scan result " + currentSelection);
     requestUpdate();
   }
 
   function nextScanResult() {
     currentSelection = (currentSelection + 1) % scanResults.size();
+    currentMode = 0;
+    System.println("Scan result " + currentSelection);
     requestUpdate();
   }
 
@@ -145,18 +156,17 @@ class ble_scan_testView extends WatchUi.View {
       BluetoothLowEnergy.unpairDevice(currentDevice);
       currentDevice = null;
     }
+    System.println("Mode " + currentMode);
     requestUpdate();
   }
 }
 
 function hexToString(hex as ByteArray) {
-  var options = {
-    :fromRepresentation => StringUtil.REPRESENTATION_BYTE_ARRAY,
-    :toRepresentation => StringUtil.REPRESENTATION_STRING_PLAIN_TEXT,
-    :encoding => StringUtil.CHAR_ENCODING_UTF8,
-  };
-
-  return StringUtil.convertEncodedString(hex, options);
+  var text = "";
+  for (var i = 0; i < hex.size(); i++) {
+    text += hex[i].toChar().toString();
+  }
+  return text;
 }
 
 class BleDelegateCustom extends BluetoothLowEnergy.BleDelegate {
@@ -180,7 +190,7 @@ class Delegate extends WatchUi.BehaviorDelegate {
     _view = view;
   }
 
-  function onMenu() {
+  function onSelect() {
     _view.switchMode();
     return true;
   }
