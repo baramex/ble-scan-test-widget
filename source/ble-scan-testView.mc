@@ -88,7 +88,8 @@ class ble_scan_testView extends WatchUi.View {
         }
       }
       dataTextArea.setText(data);
-    } else if (currentMode == 2) { // IRREVELANT ..?
+    } else if (currentMode == 2) {
+      // IRREVELANT ..?
       var manufacturerSpecificData = sr.getManufacturerSpecificDataIterator();
       var data = "";
       if (
@@ -101,7 +102,8 @@ class ble_scan_testView extends WatchUi.View {
           manufacturer = manufacturerSpecificData.next() as Dictionary?
         ) {
           data += manufacturer.get("companyId"); // always null ?
-          if (manufacturer.get("data") != null) { // also null ?
+          if (manufacturer.get("data") != null) {
+            // also null ?
             data += ":" + manufacturer.get("data").toString();
           }
           data += "\n";
@@ -109,12 +111,7 @@ class ble_scan_testView extends WatchUi.View {
       }
       dataTextArea.setText(data);
     } else if (currentMode == 3 && currentDevice != null) {
-      dataTextArea.setText(
-        "Bonded: " +
-          currentDevice.isBonded() +
-          "\nConnected: " +
-          currentDevice.isConnected()
-      );
+      dataTextArea.setText("Connected: " + currentDevice.isConnected());
     }
 
     dataTextArea.draw(dc);
