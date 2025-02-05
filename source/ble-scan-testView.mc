@@ -69,36 +69,43 @@ class ble_scan_testView extends WatchUi.View {
     dataTextArea.height = dc.getHeight() - 30;
 
     if (currentMode == 0) {
-      dataTextArea.setText(hexToString(sr.getRawData()));
+      dataTextArea.setText(sr.getRawData().toString());
     } else if (currentMode == 1) {
       var serviceUuids = sr.getServiceUuids();
       var data = "";
-      for (
-        var uuid = serviceUuids.next() as BluetoothLowEnergy.Uuid;
-        uuid != null;
-        uuid = serviceUuids.next()
-      ) {
-        var serviceData = sr.getServiceData(uuid);
-        data += uuid.toString();
-        if (serviceData != null) {
-          data += ":" + hexToString(serviceData);
+      if (serviceUuids != null && serviceUuids has :next) {
+        for (
+          var uuid = serviceUuids.next() as BluetoothLowEnergy.Uuid?;
+          uuid != null;
+          uuid = serviceUuids.next() as BluetoothLowEnergy.Uuid?
+        ) {
+          var serviceData = sr.getServiceData(uuid);
+          data += uuid.toString();
+          if (serviceData != null) {
+            data += ":" + serviceData.toString();
+          }
+          data += "\n";
         }
-        data += "\n";
       }
       dataTextArea.setText(data);
-    } else if (currentMode == 2) {
+    } else if (currentMode == 2) { // IRREVELANT ..?
       var manufacturerSpecificData = sr.getManufacturerSpecificDataIterator();
       var data = "";
-      for (
-        var manufacturer = manufacturerSpecificData.next() as Dictionary;
-        manufacturer != null;
-        manufacturer = manufacturerSpecificData.next()
+      if (
+        manufacturerSpecificData != null &&
+        manufacturerSpecificData has :next
       ) {
-        data +=
-          manufacturer.get("companyId") +
-          ":" +
-          hexToString(manufacturer.get("data") as ByteArray) +
-          "\n";
+        for (
+          var manufacturer = manufacturerSpecificData.next() as Dictionary?;
+          manufacturer != null;
+          manufacturer = manufacturerSpecificData.next() as Dictionary?
+        ) {
+          data += manufacturer.get("companyId"); // always null ?
+          if (manufacturer.get("data") != null) { // also null ?
+            data += ":" + manufacturer.get("data").toString();
+          }
+          data += "\n";
+        }
       }
       dataTextArea.setText(data);
     } else if (currentMode == 3 && currentDevice != null) {
@@ -121,7 +128,12 @@ class ble_scan_testView extends WatchUi.View {
   }
 
   function setScanResults(sr as BluetoothLowEnergy.Iterator) {
-    for (var next = sr.next(); next != null; next = sr.next()) {
+    var bl = scanResults.size();
+    for (
+      var next = sr.next() as BluetoothLowEnergy.ScanResult?;
+      next != null;
+      next = sr.next()
+    ) {
       var hasDevice = false;
       for (var i = 0; i < scanResults.size(); i++) {
         if (scanResults.get(i).isSameDevice(next)) {
@@ -134,7 +146,9 @@ class ble_scan_testView extends WatchUi.View {
       }
       scanResults.put(scanResults.size(), next);
     }
-    requestUpdate();
+    if (bl != scanResults.size()) {
+      requestUpdate();
+    }
   }
 
   function previousScanResult() {
