@@ -199,6 +199,10 @@ class BleDelegateCustom extends BluetoothLowEnergy.BleDelegate {
   function onScanResults(scanResults) {
     _view.setScanResults(scanResults);
   }
+
+  function onConnectedStateChanged(device, state) {
+    _view.requestUpdate();
+  }
 }
 
 class Delegate extends WatchUi.BehaviorDelegate {
