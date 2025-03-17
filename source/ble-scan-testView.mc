@@ -111,7 +111,14 @@ class ble_scan_testView extends WatchUi.View {
       }
       dataTextArea.setText(data);
     } else if (currentMode == 3 && currentDevice != null) {
-      dataTextArea.setText("Connected: " + currentDevice.isConnected());
+      var text = "Connected: " + currentDevice.isConnected();
+      var services = currentDevice.getServices();
+      var size = 0;
+      for (var next = services.next(); next != null; next = services.next()) {
+        size++;
+      }
+      text += "\nServices: " + size;
+      dataTextArea.setText(text);
     }
 
     dataTextArea.draw(dc);
@@ -178,6 +185,11 @@ class ble_scan_testView extends WatchUi.View {
     System.println("Mode " + currentMode);
     requestUpdate();
   }
+
+  function updateDevice(device) {
+    currentDevice = device;
+    requestUpdate();
+  }
 }
 
 function hexToString(hex as ByteArray) {
@@ -198,6 +210,13 @@ class BleDelegateCustom extends BluetoothLowEnergy.BleDelegate {
 
   function onScanResults(scanResults) {
     _view.setScanResults(scanResults);
+  }
+
+  function onConnectedStateChanged(
+    device as BluetoothLowEnergy.Device,
+    state as BluetoothLowEnergy.ConnectionState
+  ) {
+    _view.updateDevice(device);
   }
 }
 
